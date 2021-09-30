@@ -97,33 +97,41 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 		}
 
 		if field.IsMessage() {
-			if isWKT(field.GetTypeName()) {
-				if v != nil {
-					p.P("if m.%s != nil {", generator.CamelCase(field.GetName()))
-					p.generateValidationCode(field, v, mv)
-					p.P("}")
-				}
-			} else if p.gen.IsMap(field) {
-				p.P("// field:[%s] - maps not supported yet", field.GetName())
-			} else {
-				if field.IsRepeated() {
-					p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
-					p.P("msgerr := v.Validate()")
-					p.P("if msgerr != nil {")
-					p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, mv, field, "msgvalerr")
-					p.P("}")
-					p.P("}")
-					p.P("}")
+			if v != nil && v.NotNilMsg != nil && *v.NotNilMsg {
+				p.P("if m.%s == nil { ", generator.CamelCase(field.GetName()))
+				p.generateErrorCode(generator.CamelCase(field.GetName()), "", "{field} can not be an empty message", v, mv, field, "")
+				p.P("}")
+			}
+
+			if v == nil || v.SkipMsgValidate == nil || !*v.SkipMsgValidate {
+				if isWKT(field.GetTypeName()) {
+					if v != nil {
+						p.P("if m.%s != nil {", generator.CamelCase(field.GetName()))
+						p.generateValidationCode(field, v, mv)
+						p.P("}")
+					}
+				} else if p.gen.IsMap(field) {
+					p.P("// field:[%s] - maps not supported yet", field.GetName())
 				} else {
-					p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
-					p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
-					p.P("if msgerr != nil {")
-					p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, mv, field, "msgvalerr")
-					p.P("}")
-					p.P("}")
-					p.P("}")
+					if field.IsRepeated() {
+						p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
+						p.P("msgerr := v.Validate()")
+						p.P("if msgerr != nil {")
+						p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
+						p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, mv, field, "msgvalerr")
+						p.P("}")
+						p.P("}")
+						p.P("}")
+					} else {
+						p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
+						p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
+						p.P("if msgerr != nil {")
+						p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
+						p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, mv, field, "msgvalerr")
+						p.P("}")
+						p.P("}")
+						p.P("}")
+					}
 				}
 			}
 		} else {

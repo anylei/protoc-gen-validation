@@ -73,6 +73,10 @@ message FieldValidation {
 
   // do not generate validation code for a field; field type may not be supported i.e. oneof
   optional bool do_not_validate = 22;
+
+  // nested message
+  optional bool not_nil_msg = 23;
+  optional bool skip_msg_validate = 24;
 }
 
 message MessageValidation {

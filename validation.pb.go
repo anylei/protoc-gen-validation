@@ -10,7 +10,6 @@ import (
 	descriptor "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	io "io"
 	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,7 +21,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type FieldValidation struct {
 	// string options
@@ -76,7 +75,10 @@ type FieldValidation struct {
 	// code we generate that will be called via m.Field = FuncName(m.Field) allowing for any custom transformation
 	TransformFunc *string `protobuf:"bytes,21,opt,name=transform_func,json=transformFunc" json:"transform_func,omitempty"`
 	// do not generate validation code for a field; field type may not be supported i.e. oneof
-	DoNotValidate        *bool    `protobuf:"varint,22,opt,name=do_not_validate,json=doNotValidate" json:"do_not_validate,omitempty"`
+	DoNotValidate *bool `protobuf:"varint,22,opt,name=do_not_validate,json=doNotValidate" json:"do_not_validate,omitempty"`
+	// nested message
+	NotNilMsg            *bool    `protobuf:"varint,23,opt,name=not_nil_msg,json=notNilMsg" json:"not_nil_msg,omitempty"`
+	SkipMsgValidate      *bool    `protobuf:"varint,24,opt,name=skip_msg_validate,json=skipMsgValidate" json:"skip_msg_validate,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -96,7 +98,7 @@ func (m *FieldValidation) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_FieldValidation.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
+		n, err := m.MarshalTo(b)
 		if err != nil {
 			return nil, err
 		}
@@ -269,6 +271,20 @@ func (m *FieldValidation) GetDoNotValidate() bool {
 	return false
 }
 
+func (m *FieldValidation) GetNotNilMsg() bool {
+	if m != nil && m.NotNilMsg != nil {
+		return *m.NotNilMsg
+	}
+	return false
+}
+
+func (m *FieldValidation) GetSkipMsgValidate() bool {
+	if m != nil && m.SkipMsgValidate != nil {
+		return *m.SkipMsgValidate
+	}
+	return false
+}
+
 type MessageValidation struct {
 	// returns right away after the first error instead of the default of validating all fields
 	ReturnOnError *bool `protobuf:"varint,1,opt,name=return_on_error,json=returnOnError" json:"return_on_error,omitempty"`
@@ -293,7 +309,7 @@ func (m *MessageValidation) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_MessageValidation.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
+		n, err := m.MarshalTo(b)
 		if err != nil {
 			return nil, err
 		}
@@ -354,49 +370,53 @@ func init() {
 func init() { proto.RegisterFile("validation.proto", fileDescriptor_bfc2ab0b60b7792f) }
 
 var fileDescriptor_bfc2ab0b60b7792f = []byte{
-	// 565 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x53, 0x4d, 0x6f, 0x13, 0x31,
-	0x14, 0xd4, 0xb6, 0x4d, 0x36, 0x7d, 0x69, 0x3e, 0x6a, 0x12, 0x30, 0xad, 0x1a, 0x42, 0x25, 0xaa,
-	0x9c, 0x52, 0xe0, 0x80, 0x50, 0x8f, 0x88, 0x14, 0x21, 0x15, 0x2a, 0x2d, 0x82, 0x43, 0x0f, 0x58,
-	0x66, 0xf7, 0x65, 0xb1, 0xb4, 0x6b, 0x27, 0xb6, 0x17, 0x85, 0x7f, 0xc8, 0x91, 0x1f, 0xc0, 0x01,
-	0x85, 0x0b, 0x3f, 0x03, 0xd9, 0x4e, 0x42, 0xd4, 0xde, 0x3c, 0x33, 0xde, 0xd9, 0x79, 0x4f, 0x63,
-	0xe8, 0x7e, 0xe3, 0x85, 0xc8, 0xb8, 0x15, 0x4a, 0x8e, 0x67, 0x5a, 0x59, 0x45, 0xe0, 0x3f, 0x73,
-	0x34, 0xcc, 0x95, 0xca, 0x0b, 0x3c, 0xf7, 0xca, 0x97, 0x6a, 0x7a, 0x9e, 0xa1, 0x49, 0xb5, 0x98,
-	0x59, 0xa5, 0xc3, 0xed, 0xd3, 0x3f, 0x7b, 0xd0, 0xb9, 0x14, 0x58, 0x64, 0x9f, 0x36, 0x5f, 0x91,
-	0x11, 0x74, 0xa5, 0xb2, 0x0c, 0xcb, 0x99, 0xfd, 0xce, 0x8c, 0xd5, 0x42, 0xe6, 0x34, 0x1a, 0x46,
-	0xa3, 0x46, 0xd2, 0x96, 0xca, 0x4e, 0x1c, 0xfd, 0xc1, 0xb3, 0x84, 0x42, 0x5c, 0x72, 0x9b, 0x7e,
-	0x45, 0x43, 0x77, 0x86, 0xd1, 0x68, 0x3f, 0x59, 0x43, 0x72, 0x04, 0x8d, 0x54, 0x49, 0xcb, 0x85,
-	0x34, 0x74, 0xd7, 0x4b, 0x1b, 0x4c, 0x7a, 0x50, 0xd3, 0x98, 0xe3, 0x82, 0xee, 0x79, 0x21, 0x00,
-	0xf2, 0x00, 0x62, 0x21, 0x2d, 0x2b, 0x2c, 0xd2, 0xda, 0x30, 0x1a, 0xed, 0x26, 0x75, 0x21, 0xed,
-	0x95, 0xc5, 0xb5, 0x90, 0x5b, 0xa4, 0xf5, 0x8d, 0xf0, 0xc6, 0x22, 0xe9, 0x83, 0x3b, 0x31, 0x9c,
-	0xd3, 0xd8, 0xf3, 0x35, 0x21, 0xed, 0x64, 0x4e, 0x8e, 0x61, 0x7f, 0x5a, 0x28, 0x1e, 0xac, 0x1a,
-	0xc3, 0x68, 0x14, 0x25, 0x0d, 0x4f, 0x38, 0xb3, 0x8d, 0xe8, 0xec, 0xf6, 0xb7, 0x44, 0x67, 0xf8,
-	0x10, 0xc2, 0xd9, 0x59, 0x82, 0xd7, 0x62, 0x8f, 0x27, 0x73, 0x17, 0xa2, 0x14, 0x92, 0x15, 0x28,
-	0x69, 0x33, 0x84, 0x28, 0x85, 0xbc, 0x42, 0xe9, 0x05, 0xbe, 0xf0, 0xc2, 0xc1, 0x4a, 0xe0, 0x0b,
-	0x27, 0xf4, 0xa1, 0x8e, 0x73, 0xcf, 0xb7, 0x42, 0x3a, 0x9c, 0x3b, 0xba, 0x07, 0x35, 0xd4, 0x5a,
-	0x69, 0xda, 0x0e, 0xc3, 0x7b, 0xe0, 0x67, 0x34, 0xac, 0xaa, 0x44, 0x46, 0x3b, 0x7e, 0xd3, 0x75,
-	0x61, 0x3e, 0x56, 0x22, 0x73, 0x91, 0x84, 0x61, 0x58, 0x72, 0x51, 0xd0, 0xae, 0x57, 0x62, 0x61,
-	0x26, 0x0e, 0x92, 0x33, 0xe8, 0x08, 0xc3, 0x84, 0x51, 0x2f, 0x5f, 0x3c, 0x7d, 0xc6, 0x32, 0x6e,
-	0x91, 0x1e, 0xfa, 0x1b, 0x2d, 0x61, 0xde, 0x06, 0xf6, 0x35, 0xb7, 0x48, 0x08, 0xec, 0x59, 0x2d,
-	0x4a, 0x4a, 0xbc, 0xe8, 0xcf, 0xa4, 0x0d, 0x3b, 0x45, 0x4a, 0xef, 0x79, 0x66, 0xa7, 0x48, 0x1d,
-	0xae, 0x52, 0xda, 0x0b, 0xb8, 0x4a, 0xc9, 0x13, 0x68, 0x5b, 0xcd, 0xa5, 0x99, 0x2a, 0x5d, 0xb2,
-	0x69, 0x25, 0x53, 0xda, 0xf7, 0x71, 0x5b, 0x1b, 0xf6, 0xb2, 0x92, 0xa9, 0x8b, 0x90, 0x29, 0xe6,
-	0xca, 0xb2, 0x2a, 0x1d, 0xd2, 0xfb, 0x21, 0x42, 0xa6, 0xde, 0x2b, 0xbb, 0xea, 0x14, 0x9e, 0x7e,
-	0x86, 0xc3, 0x77, 0x68, 0x0c, 0xcf, 0x71, 0xab, 0x66, 0x67, 0xd0, 0xd1, 0x68, 0x2b, 0x2d, 0x99,
-	0x92, 0x2c, 0xec, 0x24, 0xb4, 0xac, 0x15, 0xe8, 0x6b, 0x39, 0xf1, 0xbb, 0x79, 0x0c, 0x07, 0x2e,
-	0xf3, 0xaa, 0x89, 0xa1, 0x69, 0x8d, 0xa4, 0xe9, 0xb8, 0x50, 0x43, 0x73, 0x91, 0x40, 0x6d, 0xea,
-	0x4a, 0x4c, 0x4e, 0xc6, 0xa1, 0xf1, 0xe3, 0x75, 0xe3, 0xc7, 0xbe, 0xdc, 0xd7, 0x33, 0xf7, 0x47,
-	0x43, 0xff, 0xfe, 0x72, 0x5d, 0x6c, 0x3e, 0x3f, 0x1e, 0x6f, 0x3d, 0x9b, 0x5b, 0xf5, 0x4f, 0x82,
-	0xd5, 0xc5, 0x0d, 0xc4, 0x65, 0xc8, 0x4c, 0x1e, 0xdd, 0x71, 0x5d, 0x4d, 0x73, 0xdb, 0xf7, 0x64,
-	0xdb, 0xf7, 0xce, 0xc4, 0xc9, 0xda, 0xf0, 0x15, 0xfd, 0xb1, 0x1c, 0x44, 0x3f, 0x97, 0x83, 0xe8,
-	0xf7, 0x72, 0x10, 0xdd, 0x6c, 0xbd, 0xd8, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xa8, 0x3e, 0x44,
-	0x2e, 0xd0, 0x03, 0x00, 0x00,
+	// 636 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x53, 0xcd, 0x6e, 0x13, 0x3d,
+	0x14, 0xd5, 0xb4, 0xcd, 0x9f, 0xd3, 0x24, 0xad, 0xbf, 0xf6, 0xab, 0x69, 0xd5, 0x10, 0x2a, 0x51,
+	0x45, 0x48, 0x4d, 0x01, 0x09, 0x84, 0xca, 0x0e, 0x48, 0x11, 0x52, 0x7f, 0xa4, 0x41, 0xb0, 0xe8,
+	0x02, 0x6b, 0x3a, 0x73, 0x33, 0xbd, 0x62, 0xc6, 0x9e, 0xd8, 0x1e, 0x14, 0x9e, 0x8a, 0xd7, 0x60,
+	0xc9, 0x03, 0xb0, 0x40, 0x5d, 0xf1, 0x18, 0xc8, 0x76, 0xfe, 0xd4, 0xee, 0xee, 0x3d, 0xe7, 0xce,
+	0x99, 0x73, 0xad, 0x73, 0xc9, 0xc6, 0xb7, 0x28, 0xc3, 0x24, 0x32, 0x28, 0xc5, 0xa0, 0x50, 0xd2,
+	0x48, 0x4a, 0x16, 0xc8, 0x6e, 0x2f, 0x95, 0x32, 0xcd, 0xe0, 0xd8, 0x31, 0xd7, 0xe5, 0xe8, 0x38,
+	0x01, 0x1d, 0x2b, 0x2c, 0x8c, 0x54, 0x7e, 0xfa, 0xe0, 0x47, 0x85, 0x74, 0x4e, 0x11, 0xb2, 0xe4,
+	0xf3, 0xfc, 0x2b, 0xda, 0x27, 0x1b, 0x42, 0x1a, 0x0e, 0x79, 0x61, 0xbe, 0x73, 0x6d, 0x14, 0x8a,
+	0x94, 0x05, 0xbd, 0xa0, 0x5f, 0x0f, 0xdb, 0x42, 0x9a, 0xa1, 0x85, 0x3f, 0x3a, 0x94, 0x32, 0x52,
+	0xcb, 0x23, 0x13, 0xdf, 0x80, 0x66, 0x2b, 0xbd, 0xa0, 0xdf, 0x08, 0x67, 0x2d, 0xdd, 0x25, 0xf5,
+	0x58, 0x0a, 0x13, 0xa1, 0xd0, 0x6c, 0xd5, 0x51, 0xf3, 0x9e, 0x6e, 0x91, 0x8a, 0x82, 0x14, 0x26,
+	0x6c, 0xcd, 0x11, 0xbe, 0xa1, 0x3b, 0xa4, 0x86, 0xc2, 0xf0, 0xcc, 0x00, 0xab, 0xf4, 0x82, 0xfe,
+	0x6a, 0x58, 0x45, 0x61, 0xce, 0x0c, 0xcc, 0x88, 0xd4, 0x00, 0xab, 0xce, 0x89, 0xf7, 0x06, 0xe8,
+	0x36, 0xb1, 0x15, 0x87, 0x31, 0xab, 0x39, 0xbc, 0x82, 0xc2, 0x0c, 0xc7, 0x74, 0x8f, 0x34, 0x46,
+	0x99, 0x8c, 0xbc, 0x54, 0xbd, 0x17, 0xf4, 0x83, 0xb0, 0xee, 0x00, 0x2b, 0x36, 0x27, 0xad, 0x5c,
+	0x63, 0x89, 0xb4, 0x82, 0x0f, 0x88, 0xaf, 0xad, 0x24, 0x71, 0x5c, 0xcd, 0xf5, 0xc3, 0xb1, 0x35,
+	0x91, 0xa3, 0xe0, 0x19, 0x08, 0xd6, 0xf4, 0x26, 0x72, 0x14, 0x67, 0x20, 0x1c, 0x11, 0x4d, 0x1c,
+	0xb1, 0x3e, 0x25, 0xa2, 0x89, 0x25, 0xb6, 0x49, 0x15, 0xc6, 0x0e, 0x6f, 0x79, 0x77, 0x30, 0xb6,
+	0xf0, 0x16, 0xa9, 0x80, 0x52, 0x52, 0xb1, 0xb6, 0x5f, 0xde, 0x35, 0x6e, 0x47, 0xcd, 0xcb, 0x12,
+	0x13, 0xd6, 0x71, 0x2f, 0x5d, 0x45, 0xfd, 0xa9, 0xc4, 0xc4, 0x5a, 0x42, 0xcd, 0x21, 0x8f, 0x30,
+	0x63, 0x1b, 0x8e, 0xa9, 0xa1, 0x1e, 0xda, 0x96, 0x1e, 0x92, 0x0e, 0x6a, 0x8e, 0x5a, 0xbe, 0x7a,
+	0xf9, 0xf4, 0x19, 0x4f, 0x22, 0x03, 0x6c, 0xd3, 0x4d, 0xb4, 0x50, 0x7f, 0xf0, 0xe8, 0xbb, 0xc8,
+	0x00, 0xa5, 0x64, 0xcd, 0x28, 0xcc, 0x19, 0x75, 0xa4, 0xab, 0x69, 0x9b, 0xac, 0x64, 0x31, 0xfb,
+	0xcf, 0x21, 0x2b, 0x59, 0x6c, 0xfb, 0x32, 0x66, 0x5b, 0xbe, 0x2f, 0x63, 0xfa, 0x98, 0xb4, 0x8d,
+	0x8a, 0x84, 0x1e, 0x49, 0x95, 0xf3, 0x51, 0x29, 0x62, 0xb6, 0xed, 0xec, 0xb6, 0xe6, 0xe8, 0x69,
+	0x29, 0x62, 0x6b, 0x21, 0x91, 0xdc, 0x86, 0x65, 0x1a, 0x3a, 0x60, 0xff, 0x7b, 0x0b, 0x89, 0xbc,
+	0x90, 0x66, 0x9a, 0x29, 0xa0, 0x5d, 0xd2, 0xb4, 0x43, 0x02, 0x33, 0x9e, 0xeb, 0x94, 0xed, 0xb8,
+	0x99, 0x86, 0x90, 0xe6, 0x02, 0xb3, 0x73, 0x9d, 0xd2, 0x27, 0x64, 0x53, 0x7f, 0xc5, 0xc2, 0x92,
+	0x0b, 0x25, 0xe6, 0xa6, 0x3a, 0x96, 0x38, 0xd7, 0xe9, 0x4c, 0xeb, 0xe0, 0x0b, 0xd9, 0x3c, 0x07,
+	0xad, 0xa3, 0x14, 0x96, 0x22, 0x7b, 0x48, 0x3a, 0x0a, 0x4c, 0xa9, 0x04, 0x97, 0x82, 0xfb, 0xf7,
+	0xf5, 0x89, 0x6d, 0x79, 0xf8, 0x52, 0x0c, 0xdd, 0x3b, 0x3f, 0x22, 0xeb, 0x76, 0xff, 0x69, 0xaa,
+	0x7d, 0x6a, 0xeb, 0x61, 0xd3, 0x62, 0x3e, 0xd2, 0xfa, 0x24, 0x24, 0x95, 0x91, 0x3d, 0x08, 0xba,
+	0x3f, 0xf0, 0xd7, 0x33, 0x98, 0x5d, 0xcf, 0xc0, 0x1d, 0xca, 0x65, 0x61, 0xff, 0xa8, 0xd9, 0xdf,
+	0xdf, 0x36, 0xd7, 0xcd, 0xe7, 0x7b, 0x83, 0xa5, 0x13, 0xbc, 0x73, 0x4a, 0xa1, 0x97, 0x3a, 0xb9,
+	0x22, 0xb5, 0xdc, 0x7b, 0xa6, 0x0f, 0xef, 0xa9, 0x4e, 0xb7, 0xb9, 0xab, 0xbb, 0xbf, 0xac, 0x7b,
+	0x6f, 0xe3, 0x70, 0x26, 0xf8, 0xe6, 0xed, 0xcf, 0xdb, 0x6e, 0xf0, 0xeb, 0xb6, 0x1b, 0xfc, 0xb9,
+	0xed, 0x06, 0x57, 0x2f, 0x52, 0x34, 0x37, 0xe5, 0xf5, 0x20, 0x96, 0xf9, 0xb1, 0x00, 0x59, 0xdc,
+	0x80, 0xc0, 0x89, 0xbf, 0xff, 0xf8, 0x28, 0x05, 0x71, 0xb4, 0x10, 0x7d, 0xbd, 0x28, 0xff, 0x05,
+	0x00, 0x00, 0xff, 0xff, 0xde, 0xc2, 0xf6, 0xa0, 0x47, 0x04, 0x00, 0x00,
 }
 
 func (m *FieldValidation) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
@@ -404,203 +424,216 @@ func (m *FieldValidation) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *FieldValidation) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *FieldValidation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
+	var i int
 	_ = i
 	var l int
 	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.DoNotValidate != nil {
-		i--
-		if *m.DoNotValidate {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0xb0
-	}
-	if m.TransformFunc != nil {
-		i -= len(*m.TransformFunc)
-		copy(dAtA[i:], *m.TransformFunc)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.TransformFunc)))
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0xaa
-	}
-	if m.Uc != nil {
-		i--
-		if *m.Uc {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0xa0
-	}
-	if m.Lc != nil {
-		i--
-		if *m.Lc {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x98
-	}
-	if m.Trim != nil {
-		i--
-		if *m.Trim {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x90
-	}
-	if m.IsIso8601Date != nil {
-		i--
-		if *m.IsIso8601Date {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x88
-	}
-	if m.IsEmail != nil {
-		i--
-		if *m.IsEmail {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x80
-	}
-	if m.IsUuid != nil {
-		i--
-		if *m.IsUuid {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x78
-	}
-	if m.Error != nil {
-		i -= len(*m.Error)
-		copy(dAtA[i:], *m.Error)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Error)))
-		i--
-		dAtA[i] = 0x72
-	}
-	if m.EqLen != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.EqLen))
-		i--
-		dAtA[i] = 0x68
-	}
-	if m.MaxLen != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.MaxLen))
-		i--
-		dAtA[i] = 0x60
-	}
-	if m.MinLen != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.MinLen))
-		i--
-		dAtA[i] = 0x58
-	}
-	if m.FloatEq != nil {
-		i -= 8
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatEq))))
-		i--
-		dAtA[i] = 0x51
-	}
-	if m.FloatGte != nil {
-		i -= 8
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatGte))))
-		i--
-		dAtA[i] = 0x49
-	}
-	if m.FloatLte != nil {
-		i -= 8
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatLte))))
-		i--
-		dAtA[i] = 0x41
-	}
-	if m.IntEq != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.IntEq))
-		i--
-		dAtA[i] = 0x38
-	}
-	if m.IntGte != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.IntGte))
-		i--
-		dAtA[i] = 0x30
-	}
-	if m.IntLte != nil {
-		i = encodeVarintValidation(dAtA, i, uint64(*m.IntLte))
-		i--
-		dAtA[i] = 0x28
-	}
-	if m.Regex != nil {
-		i -= len(*m.Regex)
-		copy(dAtA[i:], *m.Regex)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Regex)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if m.Contains != nil {
-		i -= len(*m.Contains)
-		copy(dAtA[i:], *m.Contains)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Contains)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if m.Matches != nil {
-		i -= len(*m.Matches)
-		copy(dAtA[i:], *m.Matches)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Matches)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if m.NotEmptyString != nil {
-		i--
+		dAtA[i] = 0x8
+		i++
 		if *m.NotEmptyString {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i--
-		dAtA[i] = 0x8
+		i++
 	}
-	return len(dAtA) - i, nil
+	if m.Matches != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Matches)))
+		i += copy(dAtA[i:], *m.Matches)
+	}
+	if m.Contains != nil {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Contains)))
+		i += copy(dAtA[i:], *m.Contains)
+	}
+	if m.Regex != nil {
+		dAtA[i] = 0x22
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Regex)))
+		i += copy(dAtA[i:], *m.Regex)
+	}
+	if m.IntLte != nil {
+		dAtA[i] = 0x28
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.IntLte))
+	}
+	if m.IntGte != nil {
+		dAtA[i] = 0x30
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.IntGte))
+	}
+	if m.IntEq != nil {
+		dAtA[i] = 0x38
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.IntEq))
+	}
+	if m.FloatLte != nil {
+		dAtA[i] = 0x41
+		i++
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatLte))))
+		i += 8
+	}
+	if m.FloatGte != nil {
+		dAtA[i] = 0x49
+		i++
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatGte))))
+		i += 8
+	}
+	if m.FloatEq != nil {
+		dAtA[i] = 0x51
+		i++
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(*m.FloatEq))))
+		i += 8
+	}
+	if m.MinLen != nil {
+		dAtA[i] = 0x58
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.MinLen))
+	}
+	if m.MaxLen != nil {
+		dAtA[i] = 0x60
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.MaxLen))
+	}
+	if m.EqLen != nil {
+		dAtA[i] = 0x68
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(*m.EqLen))
+	}
+	if m.Error != nil {
+		dAtA[i] = 0x72
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(len(*m.Error)))
+		i += copy(dAtA[i:], *m.Error)
+	}
+	if m.IsUuid != nil {
+		dAtA[i] = 0x78
+		i++
+		if *m.IsUuid {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.IsEmail != nil {
+		dAtA[i] = 0x80
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.IsEmail {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.IsIso8601Date != nil {
+		dAtA[i] = 0x88
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.IsIso8601Date {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.Trim != nil {
+		dAtA[i] = 0x90
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.Trim {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.Lc != nil {
+		dAtA[i] = 0x98
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.Lc {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.Uc != nil {
+		dAtA[i] = 0xa0
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.Uc {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.TransformFunc != nil {
+		dAtA[i] = 0xaa
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintValidation(dAtA, i, uint64(len(*m.TransformFunc)))
+		i += copy(dAtA[i:], *m.TransformFunc)
+	}
+	if m.DoNotValidate != nil {
+		dAtA[i] = 0xb0
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.DoNotValidate {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.NotNilMsg != nil {
+		dAtA[i] = 0xb8
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.NotNilMsg {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.SkipMsgValidate != nil {
+		dAtA[i] = 0xc0
+		i++
+		dAtA[i] = 0x1
+		i++
+		if *m.SkipMsgValidate {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	return i, nil
 }
 
 func (m *MessageValidation) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	n, err := m.MarshalTo(dAtA)
 	if err != nil {
 		return nil, err
 	}
@@ -608,52 +641,44 @@ func (m *MessageValidation) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MessageValidation) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MessageValidation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
+	var i int
 	_ = i
 	var l int
 	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.TrimStrings != nil {
-		i--
-		if *m.TrimStrings {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x10
-	}
 	if m.ReturnOnError != nil {
-		i--
+		dAtA[i] = 0x8
+		i++
 		if *m.ReturnOnError {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i--
-		dAtA[i] = 0x8
+		i++
 	}
-	return len(dAtA) - i, nil
+	if m.TrimStrings != nil {
+		dAtA[i] = 0x10
+		i++
+		if *m.TrimStrings {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.XXX_unrecognized != nil {
+		i += copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	return i, nil
 }
 
 func encodeVarintValidation(dAtA []byte, offset int, v uint64) int {
-	offset -= sovValidation(v)
-	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return base
+	return offset + 1
 }
 func (m *FieldValidation) Size() (n int) {
 	if m == nil {
@@ -732,6 +757,12 @@ func (m *FieldValidation) Size() (n int) {
 	if m.DoNotValidate != nil {
 		n += 3
 	}
+	if m.NotNilMsg != nil {
+		n += 3
+	}
+	if m.SkipMsgValidate != nil {
+		n += 3
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -757,7 +788,14 @@ func (m *MessageValidation) Size() (n int) {
 }
 
 func sovValidation(x uint64) (n int) {
-	return (math_bits.Len64(x|1) + 6) / 7
+	for {
+		n++
+		x >>= 7
+		if x == 0 {
+			break
+		}
+	}
+	return n
 }
 func sozValidation(x uint64) (n int) {
 	return sovValidation(uint64((x << 1) ^ uint64((int64(x) >> 63))))
@@ -777,7 +815,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= uint64(b&0x7F) << shift
+			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -805,7 +843,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -826,7 +864,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -836,9 +874,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthValidation
 			}
 			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -859,7 +894,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -869,9 +904,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthValidation
 			}
 			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -892,7 +924,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -902,9 +934,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthValidation
 			}
 			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -925,7 +954,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -945,7 +974,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -965,7 +994,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1021,7 +1050,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1041,7 +1070,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1061,7 +1090,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int64(b&0x7F) << shift
+				v |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1081,7 +1110,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1091,9 +1120,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthValidation
 			}
 			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1114,7 +1140,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1135,7 +1161,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1156,7 +1182,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1177,7 +1203,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1198,7 +1224,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1219,7 +1245,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1240,7 +1266,7 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1250,9 +1276,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthValidation
 			}
 			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1273,13 +1296,55 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 			b := bool(v != 0)
 			m.DoNotValidate = &b
+		case 23:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NotNilMsg", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowValidation
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			b := bool(v != 0)
+			m.NotNilMsg = &b
+		case 24:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SkipMsgValidate", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowValidation
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			b := bool(v != 0)
+			m.SkipMsgValidate = &b
 		default:
 			iNdEx = preIndex
 			skippy, err := skipValidation(dAtA[iNdEx:])
@@ -1287,9 +1352,6 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
-				return ErrInvalidLengthValidation
-			}
-			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthValidation
 			}
 			if (iNdEx + skippy) > l {
@@ -1320,7 +1382,7 @@ func (m *MessageValidation) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= uint64(b&0x7F) << shift
+			wire |= (uint64(b) & 0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -1348,7 +1410,7 @@ func (m *MessageValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1369,7 +1431,7 @@ func (m *MessageValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				v |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1383,9 +1445,6 @@ func (m *MessageValidation) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
-				return ErrInvalidLengthValidation
-			}
-			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthValidation
 			}
 			if (iNdEx + skippy) > l {
@@ -1404,7 +1463,6 @@ func (m *MessageValidation) Unmarshal(dAtA []byte) error {
 func skipValidation(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
-	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -1436,8 +1494,10 @@ func skipValidation(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
+			return iNdEx, nil
 		case 1:
 			iNdEx += 8
+			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -1454,34 +1514,53 @@ func skipValidation(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
+			iNdEx += length
 			if length < 0 {
 				return 0, ErrInvalidLengthValidation
 			}
-			iNdEx += length
+			return iNdEx, nil
 		case 3:
-			depth++
-		case 4:
-			if depth == 0 {
-				return 0, ErrUnexpectedEndOfGroupValidation
+			for {
+				var innerWire uint64
+				var start int = iNdEx
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return 0, ErrIntOverflowValidation
+					}
+					if iNdEx >= l {
+						return 0, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					innerWire |= (uint64(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				innerWireType := int(innerWire & 0x7)
+				if innerWireType == 4 {
+					break
+				}
+				next, err := skipValidation(dAtA[start:])
+				if err != nil {
+					return 0, err
+				}
+				iNdEx = start + next
 			}
-			depth--
+			return iNdEx, nil
+		case 4:
+			return iNdEx, nil
 		case 5:
 			iNdEx += 4
+			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
-		if iNdEx < 0 {
-			return 0, ErrInvalidLengthValidation
-		}
-		if depth == 0 {
-			return iNdEx, nil
-		}
 	}
-	return 0, io.ErrUnexpectedEOF
+	panic("unreachable")
 }
 
 var (
-	ErrInvalidLengthValidation        = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowValidation          = fmt.Errorf("proto: integer overflow")
-	ErrUnexpectedEndOfGroupValidation = fmt.Errorf("proto: unexpected end of group")
+	ErrInvalidLengthValidation = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowValidation   = fmt.Errorf("proto: integer overflow")
 )
