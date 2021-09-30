@@ -16,7 +16,7 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 	closeBrackets := 0
 
 	if (v.Trim != nil && *v.Trim) || (mv != nil && mv.TrimStrings != nil && *mv.TrimStrings) {
-		p.P(`%s = %s.Trim(%s, " ")`, fieldValue, p.stringsPkg.Use(), fieldValue)
+		p.P(`%s = %s.TrimSpace(%s)`, fieldValue, p.stringsPkg.Use(), fieldValue)
 	}
 	if v.Lc != nil && *v.Lc {
 		p.P(`%s = %s.ToLower(%s)`, fieldValue, p.stringsPkg.Use(), fieldValue)
