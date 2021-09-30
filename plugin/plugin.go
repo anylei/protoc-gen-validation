@@ -38,9 +38,9 @@ func (p *Plugin) Init(g *generator.Generator) {
 
 // Here is where all the work is done, this is called to generate the main guts of the code
 func (p *Plugin) Generate(file *generator.FileDescriptor) {
-	if len(file.FileDescriptorProto.Service) == 0 {
-		return
-	}
+	// if len(file.FileDescriptorProto.Service) == 0 {
+	// 	return
+	// }
 
 	// output our error type
 	p.generateErrorType()
@@ -68,9 +68,9 @@ func (p *Plugin) Generate(file *generator.FileDescriptor) {
 // Remember that this is called last, so that we can mark imports as used in Generate and then they get output here.
 // So don't go adding things here that expect to be first
 func (p *Plugin) GenerateImports(file *generator.FileDescriptor) {
-	if len(file.FileDescriptorProto.Service) == 0 {
-		return
-	}
+	// if len(file.FileDescriptorProto.Service) == 0 {
+	// 	return
+	// }
 	p.imp.GenerateImports(file)
 }
 
